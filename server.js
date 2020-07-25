@@ -12,11 +12,7 @@ let player1 = ""
 let player2 = 'JOIN NOW!'
 let p1 = {name: "", id: "", score: 0, room: ""}
 let p2 = {name: "", id: "", score: 0, room: ""}
-
-const sessionQuestions = []
-
-//== SETTINGS == 
-const questions = require('./questions.json'); //JSON
+let sessionQuestions = []
 let numberOfQuestions = 5; // SET NUMBER OF QUESTIONS
 
 io.on('connection', (socket) => {
@@ -70,22 +66,15 @@ io.on('connection', (socket) => {
     io.emit('p2Broadcast', p2)
   })
 
-  // Listen for advance button - WIP!!
+  // Listen for advance button
   socket.on('advanceButton', (item, room) => {
     if (item === "goToInstructions") {
       io.emit('advanceToInstructions', item)
-    //   axios
-    //   .get('https://opentdb.com/api.php?amount=5&type=multiple')
-    //   .then(res => {
-    //     const newArr = []
-    //     res.data.results.map(item => {
-    //       sessionQuestions.push({
-    //         ""
-    //       })}
-    //     )
-    //     return(sessionQuestions)
-    //   })
-    //   .catch(err => {console.log(err)})
+      
+      axios
+        .get(`https://opentdb.com/api.php?amount=${numberofQuestions}&type=multiple`)
+        .then(res => {sessionQuestions = res.data.results})
+        .catch(err => {console.log("Errors: ", err)})
     }
     if (item === "goToQuestionIntro") {io.emit('advanceToQuestionIntro', item)}
     if (item === "goToQuestions") {io.emit('advanceToQuestions', item)}
@@ -117,10 +106,8 @@ io.on('connection', (socket) => {
     if (questionsSent === false) {
       console.log('Shuffling questions!')
       questionsSent = true;
-      shuffle(questions);
-      // shuffle(sessionQuestions);
-      // for (let i = 0; i < (numberOfQuestions + 1); i++) {filteredQuestions.push(sessionQuestions[i])}
-      for (let i = 0; i < (numberOfQuestions + 1); i++) {filteredQuestions.push(questions[i])}
+      shuffle(sessionQuestions);
+      for (let i = 0; i < (numberOfQuestions); i++) {filteredQuestions.push(sessionQuestions[i])}
     }
     console.log("Filtered questions: ", filteredQuestions)
     io.emit('filteredQuestions', filteredQuestions) //broadcast to all
@@ -154,5 +141,5 @@ io.on('connection', (socket) => {
   })
 })
 
-const PORT = process.env.PORT || 3009;
+const PORT = 3009 || process.env.PORT
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`))
