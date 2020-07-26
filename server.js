@@ -10,8 +10,12 @@ app.use(bodyParser.json())
 
 let player1 = ""
 let player2 = 'JOIN NOW!'
-let p1 = {name: "", id: "", score: 0, room: ""}
-let p2 = {name: "", id: "", score: 0, room: ""}
+
+let p1 = []
+let p2 = []
+// let p1 = {name: "", id: "", score: 0, room: ""}
+// let p2 = {name: "", id: "", score: 0, room: ""}
+
 let sessionQuestions = []
 let numberOfQuestions = 5; // SET NUMBER OF QUESTIONS
 
@@ -20,35 +24,46 @@ io.on('connection', (socket) => {
   
   socket.on('disconnect', () => {console.log("A player has left");}) 
 
-  // Listen for room
-  socket.on('roomName', (room) => {
-    io.emit('roomName', room) // Broadcast to everyone
-    theRoom = room
-    socket.join(room)
-  })
+  // // Listen for room
+  // socket.on('roomName', (room) => {
+  //   io.emit('roomName', room) // Broadcast to everyone
+  //   theRoom = room
+  //   socket.join(room)
+  // })
 
   // Listen for name using algorithm
-  socket.on('name1', (name, clientId) => {
+  socket.on('userName', (name, clientId, room) => {
+  // socket.on('name1', (name, clientId) => {
     if (name !== null && player1 === "" && player1 !== name) {
+      const p1Player = { name, clientId, room, score: 0}
+      p1.push(p1Player)
+
       player1 = name      
 
-      p1.name = player1
-      p1.id = clientId
-      p1.score = 0
-      p1.room = theRoom
+      // p1.name = name
+      // p1.id = clientId
+      // p1.room = room
+      // p1.score = 0
       console.log(p1)
+
+      socket.join(room)
 
       io.emit('name1Broadcast', player1)
       io.emit('p1Broadcast', p1)
     } 
     else if (name !== null && player2 === "JOIN NOW!" && player1 !== name) {
+      const p2Player = { name, clientId, room, score: 0}
+      p2.push(p2Player)
+      
       player2 = name
       
-      p2.name = player2
-      p2.id = clientId
-      p1.score = 0
-      p2.room = theRoom
+      // p2.name = player2
+      // p2.id = clientId
+      // p1.score = 0
+      // p2.room = theRoom
       console.log(p2)
+
+      socket.join(room)
 
       io.emit('name1Broadcast', player1)
       io.emit('name2Broadcast', player2)
@@ -72,7 +87,7 @@ io.on('connection', (socket) => {
       io.emit('advanceToInstructions', item)
       
       axios
-        .get(`https://opentdb.com/api.php?amount=${numberofQuestions}&type=multiple`)
+        .get(`https://opentdb.com/api.php?amount=${numberOfQuestions}&type=multiple`)
         .then(res => {sessionQuestions = res.data.results})
         .catch(err => {console.log("Errors: ", err)})
     }
@@ -122,22 +137,26 @@ io.on('connection', (socket) => {
 
   // listen for correct answers
   socket.on('100Player', (id) => {
-    if (id.clientId == p1.id) {
+    // console.log("id: ", id)
+    // console.log("id.clientId: ", id.clientId)
+    // console.log("p1: ", p1)
+    // console.log("p1[0].clientId: ", p1[0].clientId)
+    if (id.clientId == p1[0].clientId) {
       p1.score += 100
-      io.emit('100Player1', p1.name)}
-    else if (id.clientId == p2.id) {
+      io.emit('100Player1', p1[0].name)}
+    else if (id.clientId == p2[0].clientId) {
       p2.score += 100
-      io.emit('100Player2', p2.name)}
+      io.emit('100Player2', p2[0].name)}
   })
 
   // listen for incorrect answers
   socket.on('minus75Player', (id) => {
-    if (id.clientId == p1.id) {
+    if (id.clientId == p1[0].clientId) {
       p1.score -= 75
-      io.emit('minus75Player1', p1.name)}
-    else if (id.clientId == p2.id) {
+      io.emit('minus75Player1', p1[0].name)}
+    else if (p2.clientIs.length !== 0 && id.clientId == p2[0].clientId) {
       p2.score -= 75
-      io.emit('minus75Player2', p2.name)}
+      io.emit('minus75Player2', p2[0].name)}
   })
 })
 
