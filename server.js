@@ -93,7 +93,18 @@ io.on('connection', (socket) => {
     }
     if (item === "goToQuestionIntro") {io.emit('advanceToQuestionIntro', item)}
     if (item === "goToQuestions") {io.emit('advanceToQuestions', item)}
-    if (item === "goToWinner") {io.emit('advanceToWinner', item)}
+    
+    if (item === "goToWinner") {
+      if (!p2[0]) {
+        io.emit('advanceToWinner', p1[0].name, p1[0].score)
+      } else if (p1[0].score > p2[0].score) {
+        io.emit('advanceToWinner', p1[0].name, p1[0].score)
+      } else if (p1[0].score < p2[0].score) {
+        io.emit('advanceToWinner', p2[0].name, p2[0].score)
+      } else if (p1[0].score === p2[0].score) {
+        io.emit('advanceToWinner', "It's a Tie!", p1[0].score)
+      }
+    }
   })
 
   // Listen for time to serve questions
@@ -142,23 +153,49 @@ io.on('connection', (socket) => {
     // console.log("p1: ", p1)
     // console.log("p1[0].clientId: ", p1[0].clientId)
     if (id.clientId == p1[0].clientId) {
-      p1.score += 100
-      io.emit('100Player1', p1[0].name)}
+      p1[0].score += 100
+      console.log("p1: ", p1)
+      console.log("p2: ", p2)
+      console.log("p1.score: ", p1[0].score)
+      io.emit('100Player1', p1[0].name, p1[0].score)}
     else if (id.clientId == p2[0].clientId) {
-      p2.score += 100
-      io.emit('100Player2', p2[0].name)}
+      p2[0].score += 100
+      console.log("p1.score: ", p1[0].score)
+      io.emit('100Player2', p2[0].name, p2[0].score)}
   })
 
   // listen for incorrect answers
   socket.on('minus75Player', (id) => {
     if (id.clientId == p1[0].clientId) {
-      p1.score -= 75
-      io.emit('minus75Player1', p1[0].name)}
-    else if (p2.clientIs.length !== 0 && id.clientId == p2[0].clientId) {
-      p2.score -= 75
-      io.emit('minus75Player2', p2[0].name)}
+      p1[0].score -= 75
+      console.log("p1.score: ", p1[0].score)
+      io.emit('minus75Player1', p1[0].name, p1[0].score)}
+    else if (p2[0].clientId.length !== 0 && id.clientId == p2[0].clientId) {
+      p2[0].score -= 75
+      console.log("p1.score: ", p1[0].score)
+      io.emit('minus75Player2', p2[0].name, p2[0].score)}
+  })
+
+  socket.on('resetRoom', (room) => {
+    console.log("p1 currently: ", p1)
+    console.log("p2 currently: ", p2)
+    console.log("Resetting room: ", room)
+
+    isRoom = (theRoom) => {theRoom.name === room}
+
+    const toRemoveP1 = p1.findIndex(isRoom)
+    const toRemoveP2 = p2.findIndex(isRoom)
+    
+    p1.splice(toRemoveP1, 1)       
+    p2.splice(toRemoveP2, 1)
+    player1 = ""
+    player2 = 'JOIN NOW!'
+
+    console.log("p1 afterwards: ", p1)
+    console.log("p2 afterwards: ", p2)
   })
 })
+
 
 const PORT = 3009 || process.env.PORT
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`))
