@@ -12,6 +12,8 @@ let rooms = [];
 let sessionQuestions = []
 let numberOfQuestions = 5; // SET NUMBER OF QUESTIONS
 
+app.get('/', (req,res) => {res.send('YDKDS served!');});
+
 io.on('connection', (socket) => {
   console.log('New PLAYER connected!: ', socket.id);
   
