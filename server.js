@@ -10,7 +10,7 @@ app.use(bodyParser.json())
 
 let rooms = [];
 let sessionQuestions = []
-let numberOfQuestions = 5; // SET NUMBER OF QUESTIONS
+let numberOfQuestions = 5; // SET NUMBER OF QUESTIONS + 1
 
 app.get('/', (req,res) => {res.send('YDKDS served!');});
 
@@ -97,7 +97,7 @@ io.on('connection', (socket) => {
       for (let i = 0; i < (numberOfQuestions); i++) {filteredQuestions.push(sessionQuestions[i])}
     }
     console.log("Filtered questions: ", filteredQuestions)
-    io.emit('filteredQuestions', filteredQuestions) //broadcast to all
+    io.emit('filteredQuestions', filteredQuestions)
   })
 
   // listen for signal for nextQuestion
@@ -130,20 +130,6 @@ io.on('connection', (socket) => {
         target.players[1].score -= 75
         io.emit('minus75Player2', target.players)}
     })
-
-    // socket.on('resetRoom', (code) => {
-    //   const target = rooms.find(room => room.code === code);
-    //   console.log("target", target)
-    //   console.log("p1 currently: ", target.players[0])
-    //   console.log("p2 currently: ", target.players[1])
-    //   console.log("Resetting room: ", code)
-
-    //   target.players[0].splice(1, 1)       
-    //   target.players[1].splice(1, 1)
-
-    //   console.log("p1 afterwards: ", target.players[0])
-    //   console.log("p2 afterwards: ", target.players[1])
-    // })
 });
 
 const PORT = process.env.PORT || 3009;
