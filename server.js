@@ -29,7 +29,7 @@ io.on('connection', (socket) => {
       io.emit('pBroadcast', newRoom.players);
     } else {
       const target = rooms.find(room => room.code === code);
-      if (target.players.length < 2) { target.players.push(newPlayer) } ;
+      if (target.players.length < 4) { target.players.push(newPlayer) } ;
       socket.join(code);
       io.emit('pBroadcast', target.players);
     }
@@ -56,14 +56,70 @@ io.on('connection', (socket) => {
     if (item === "goToWinner") {
       const target = rooms.find(room => room.code === code);
       console.log("target: ", target)
-      if (target.players.length < 2) {
+      if (target.players.length === 1) {
         io.emit('advanceToWinner', target.players[0].name, target.players[0].score)
-      } else if (target.players[0].score > target.players[1].score) {
+
+      // 2 player iterations
+      } else if (target.players.length === 2 && target.players[0].score > target.players[1].score) {
+      io.emit('advanceToWinner', target.players[0].name, target.players[0].score)      
+      } else if (target.players.length === 2 && target.players[1].score > target.players[0].score) {
+      io.emit('advanceToWinner', target.players[1].name, target.players[1].score)      
+
+      } else if (target.players.length === 2 && target.players[1].score === target.players[0].score) {
+      io.emit('advanceToWinner', "It's a tie!", target.players[1].score)      
+
+      // 3 player iterations
+      } else if (target.players.length === 3 && target.players[0].score > target.players[1].score && target.players[0].score > target.players[2].score) {
+      io.emit('advanceToWinner', target.players[0].name, target.players[0].score)      
+      } else if (target.players.length === 3 && target.players[1].score > target.players[0].score && target.players[1].score > target.players[2].score) {
+      io.emit('advanceToWinner', target.players[1].name, target.players[1].score)      
+      } else if (target.players.length === 3 && target.players[2].score > target.players[0].score && target.players[2].score > target.players[1].score) {
+      io.emit('advanceToWinner', target.players[2].name, target.players[2].score)      
+
+      } else if (target.players.length === 3 && target.players[0].score === target.players[1].score && target.players[0].score > target.players[2].score) {
+      io.emit('advanceToWinner', "Players 1 and 2 win!", target.players[0].score)      
+      } else if (target.players.length === 3 && target.players[0].score > target.players[1].score && target.players[0].score === target.players[2].score) {
+      io.emit('advanceToWinner', "Players 1 and 3 win!", target.players[1].score)      
+
+    } else if (target.players.length === 3 && target.players[1].score > target.players[0].score && target.players[1].score === target.players[2].score) {
+      io.emit('advanceToWinner', "Players 2 and 3 win!", target.players[1].score)      
+
+      } else if (target.players.length === 3 && target.players[0].score === target.players[1].score && target.players[0].score === target.players[2].score) {
+      io.emit('advanceToWinner', "It's a 3-way tie!", target.players[0].score)      
+
+      // 4 player iterations
+      } else if (target.players.length === 4 && target.players[0].score > target.players[1].score && target.players[0].score > target.players[2].score && target.players[0].score > target.players[3].score) {
         io.emit('advanceToWinner', target.players[0].name, target.players[0].score)
-      } else if (target.players[0].score < target.players[1].score) {
+      } else if (target.players.length === 4 && target.players[1].score > target.players[0].score && target.players[1].score > target.players[2].score && target.players[1].score > target.players[3].score ) {
         io.emit('advanceToWinner', target.players[1].name, target.players[1].score)
-      } else if (target.players[0].score === target.players[1].score) {
-        io.emit('advanceToWinner', "It's a Tie!", target.players[0].score)
+      } else if (target.players.length === 4 && target.players[2].score > target.players[0].score && target.players[2].score > target.players[1].score && target.players[2].score > target.players[3].score ) {
+        io.emit('advanceToWinner', target.players[2].name, target.players[2].score)
+      } else if (target.players.length === 4 && target.players[3].score > target.players[0].score && target.players[3].score > target.players[1].score && target.players[3].score > target.players[2].score ) {
+        io.emit('advanceToWinner', target.players[3].name, target.players[3].score)
+
+      } else if (target.players.length === 4 && target.players[0].score === target.players[1].score && target.players[0].score > target.players[2].score && target.players[0].score > target.players[3].score) {
+        io.emit('advanceToWinner', "Players 1 and 2 win!", target.players[0].score)
+      } else if (target.players.length === 4 && target.players[2].score === target.players[0].score && target.players[2].score > target.players[1].score && target.players[2].score > target.players[3].score ) {
+        io.emit('advanceToWinner', "Players 1 and 3 win!", target.players[2].score)
+      } else if (target.players.length === 4 && target.players[3].score === target.players[0].score && target.players[3].score > target.players[1].score && target.players[3].score > target.players[2].score ) {
+        io.emit('advanceToWinner', "Players 1 and 4 win!", target.players[3].score)
+
+      } else if (target.players.length === 4 && target.players[1].score > target.players[0].score && target.players[1].score === target.players[2].score && target.players[1].score > target.players[3].score ) {
+        io.emit('advanceToWinner', "Players 2 and 3 win!", target.players[1].score)
+      } else if (target.players.length === 4 && target.players[1].score > target.players[0].score && target.players[1].score > target.players[2].score && target.players[1].score === target.players[3].score ) {
+        io.emit('advanceToWinner', "Players 2 and 4 win!", target.players[1].score)
+
+      } else if (target.players.length === 4 && target.players[0].score === target.players[1].score && target.players[0].score === target.players[2].score && target.players[0].score > target.players[3].score) {
+        io.emit('advanceToWinner', "Players 1, 2, and 3 win!", target.players[0].score)
+      } else if (target.players.length === 4 && target.players[0].score === target.players[1].score && target.players[0].score > target.players[2].score && target.players[0].score === target.players[3].score) {
+        io.emit('advanceToWinner', "Players 1, 2, and 4 win!", target.players[0].score)
+      } else if (target.players.length === 4 && target.players[0].score > target.players[1].score && target.players[0].score === target.players[2].score && target.players[0].score === target.players[3].score) {
+        io.emit('advanceToWinner', "Players 1, 3, and 4 win!", target.players[0].score)
+      } else if (target.players.length === 4 && target.players[1].score > target.players[0].score && target.players[1].score === target.players[2].score && target.players[1].score === target.players[3].score ) {
+        io.emit('advanceToWinner', "Players 2, 3, and 4 win!", target.players[1].score)
+
+      } else if (target.players.length === 4 && target.players[0].score === target.players[1].score && target.players[0].score === target.players[2].score && target.players[0].score === target.players[3].score) {
+        io.emit('advanceToWinner', "It's a 4-way Tie!", target.players[0].score)
       }
     }
   })
@@ -114,10 +170,15 @@ io.on('connection', (socket) => {
       if (id == target.players[0].uuid) {
         target.players[0].score += 100
         io.emit('100Player1', target.players)}
-
       else if (id == target.players[1].uuid) {
         target.players[1].score += 100
         io.emit('100Player2', target.players)}
+      else if (id == target.players[2].uuid) {
+        target.players[2].score += 100
+        io.emit('100Player3', target.players)}
+      else if (id == target.players[3].uuid) {
+        target.players[3].score += 100
+        io.emit('100Player4', target.players)}        
     })
 
     // listen for incorrect answers
@@ -129,6 +190,12 @@ io.on('connection', (socket) => {
       else if (target.players[0].uuid.length !== 0 && id == target.players[1].uuid) {
         target.players[1].score -= 75
         io.emit('minus75Player2', target.players)}
+      else if (target.players[0].uuid.length !== 0 && id == target.players[2].uuid) {
+        target.players[2].score -= 75
+        io.emit('minus75Player3', target.players)}
+      else if (target.players[0].uuid.length !== 0 && id == target.players[3].uuid) {
+        target.players[3].score -= 75
+        io.emit('minus75Player4', target.players)}
     })
 });
 
